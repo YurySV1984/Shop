@@ -4,9 +4,26 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Shop"
+        xmlns:vm="clr-namespace:Shop"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
     <Grid>
+        <Menu>
+            <MenuItem Name="Entitys" Header="Сущности">
+                <MenuItem Name="Goods" Header="Товар">
+                    <MenuItem Header="Посмотреть товары" Command="{Binding OpenProductsCommand}"/>
+                    <MenuItem Header="Добавить" Command="{Binding AddProductCommand}"/>
+                </MenuItem>
+
+                <MenuItem Name="Seller" Header="Продавец" Command="{Binding OpenSellersCommand}"/>
+                <MenuItem Name="Customer" Header="Покупатель" Command="{Binding OpenCustomersCommand}"/>
+                <MenuItem Name="Check" Header="Чек" Command="{Binding OpenChecksCommand}"/>
+            </MenuItem>
+
+        </Menu>
 
     </Grid>
 </Window>

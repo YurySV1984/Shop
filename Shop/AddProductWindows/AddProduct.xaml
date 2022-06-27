@@ -1,0 +1,68 @@
+﻿<Window x:Class="Shop.AddWindows.AddProduct"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Shop.AddWindows"
+        xmlns:vm="clr-namespace:Shop.AddProductWindows"
+        mc:Ignorable="d"
+        Title="Добавить продукт" Height="200" Width="400">
+    <Window.DataContext>
+        <vm:AddProductWindowViewModel/>
+    </Window.DataContext>
+    <Grid ShowGridLines="False" Background="#f4f3f1">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="*"/>
+
+        </Grid.ColumnDefinitions>
+
+        <DockPanel Grid.Column="0" Grid.Row="0">
+            <TextBlock Text="Введите наименование:" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5"></TextBlock>
+        </DockPanel>
+        <DockPanel Grid.Column="1" Grid.Row="0">
+            <TextBox HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" Width="200" Text="{Binding ProductName}"></TextBox>
+        </DockPanel>
+
+        <DockPanel Grid.Column="0" Grid.Row="1">
+            <TextBlock Text="Введите цену:" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5"></TextBlock>
+        </DockPanel>
+        <DockPanel Grid.Column="1" Grid.Row="1">
+            <TextBox HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" Width="200" Text="{Binding ProductPrice}"></TextBox>
+        </DockPanel>
+
+        <DockPanel Grid.Column="0" Grid.Row="2">
+            <TextBlock Text="Введите единицу изм.:" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5"></TextBlock>
+        </DockPanel>
+        <DockPanel Grid.Column="1" Grid.Row="2">
+            <TextBox HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" Width="200" Text="{Binding ProductUnit}"></TextBox>
+        </DockPanel>
+
+        <DockPanel Grid.Column="0" Grid.Row="3">
+            <TextBlock Text="Введите артикул:" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5"></TextBlock>
+        </DockPanel>
+        <DockPanel Grid.Column="1" Grid.Row="3">
+            <TextBox HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" Width="200" Text="{Binding ProductArticul}"></TextBox>
+        </DockPanel>
+
+        <DockPanel Grid.Column="0" Grid.Row="4">
+            <TextBlock Text="Введите количество:" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5"></TextBlock>
+        </DockPanel>
+        <DockPanel Grid.Column="1" Grid.Row="4">
+            <TextBox HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" Width="200" Text="{Binding ProductCount}"></TextBox>
+        </DockPanel>
+
+        <DockPanel Grid.Column="1" Grid.Row="5">
+            <Button Content="Сохранить" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5" Width="100" Command="{Binding SaveCommand}"></Button>
+        </DockPanel>
+    </Grid>
+</Window>
