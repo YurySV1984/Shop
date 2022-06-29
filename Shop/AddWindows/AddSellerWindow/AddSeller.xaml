@@ -1,0 +1,39 @@
+﻿<Window x:Class="Shop.AddWindows.AddSellerWindow.AddSeller"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:Shop.AddWindows.AddSellerWindow"
+        mc:Ignorable="d"
+        Title="Добавить продавца" Height="200" Width="400">
+    <Window.DataContext>
+        <vm:AddSellerWindowViewModel/>
+    </Window.DataContext>
+    <Grid ShowGridLines="False" Background="#f4f3f1">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="*"/>
+
+        </Grid.ColumnDefinitions>
+
+        <DockPanel Grid.Column="0" Grid.Row="0">
+            <TextBlock Text="Введите ФИО:" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5"></TextBlock>
+        </DockPanel>
+        <DockPanel Grid.Column="1" Grid.Row="0">
+            <TextBox HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" Width="200" Text="{Binding SellerName}"></TextBox>
+        </DockPanel>
+
+        <DockPanel Grid.Column="1" Grid.Row="5">
+            <Button Content="Сохранить" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5" Width="100" Command="{Binding SaveCommand}"></Button>
+        </DockPanel>
+    </Grid>
+</Window>

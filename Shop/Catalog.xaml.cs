@@ -22,34 +22,30 @@ namespace Shop
     /// </summary>
     public partial class Catalog : Window
     {
-        //private ObservableCollection<Customer>? _customerList;
-        ShopContext context;
-        public Catalog(string what)
+        public Catalog()
         {
             InitializeComponent();
-            context = new ShopContext();
-            switch (what)
-            {
-                case "customers":
-                        DataGridView.ItemsSource = new ObservableCollection<Customer>(context.Customers?.ToList());
-                    break;
-                case "products":
-                        DataGridView.ItemsSource = new ObservableCollection<Product>(context.Products?.ToList());
-                    break;
-                case "sellers":
-                        DataGridView.ItemsSource = new ObservableCollection<Seller>(context.Sellers?.ToList());
-                    break;
-                case "checks":
-                        DataGridView.ItemsSource = new ObservableCollection<Check>(context.Checks?.ToList());
-                    break;
+            //using (var context = new ShopContext())
+            //{
+            //    switch (what)
+            //    {
+            //        case "customers":
+            //            DataGridView.ItemsSource = new ObservableCollection<Customer>(context.Customers?.ToList());
+            //            break;
+            //        case "products":
+            //            DataGridView.ItemsSource = new ObservableCollection<Product>(context.Products?.ToList());
+            //            break;
+            //        case "sellers":
+            //            DataGridView.ItemsSource = new ObservableCollection<Seller>(context.Sellers?.ToList());
+            //            break;
+            //        case "checks":
+            //            DataGridView.ItemsSource = new ObservableCollection<Check>(context.Checks?.ToList());
+            //            break;
 
-                default:
-                    break;
-            }
-            
-            
-
-
+            //        default:
+            //            break;
+            //    }
+            //}
         }
 
     }

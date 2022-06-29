@@ -1,10 +1,16 @@
 ﻿using Shop.AddWindows;
+using Shop.AddWindows.AddCheckWindow;
+using Shop.AddWindows.AddCustomerWindow;
+using Shop.AddWindows.AddProductWindow;
+using Shop.AddWindows.AddSellerWindow;
+using Shop.BL.Model;
 using Shop.Commands.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
 using System.Windows.Input;
 
 namespace Shop
@@ -16,8 +22,11 @@ namespace Shop
             OpenProductsCommand = new LambdaCommand(OnOpenProductsExecuted, CanOpenProducts);
             AddProductCommand = new LambdaCommand(OnAddProductExecuted, CanAddProduct);
             OpenSellersCommand = new LambdaCommand(OnOpenSellersExecuted, CanOpenSellers);
-            OpenChecksCommand = new LambdaCommand(OnOpenChecksExecuted, CanOpenChecks);
+            AddSellerCommand = new LambdaCommand(OnAddSellerExecuted, CanAddSeller);            
             OpenCustomersCommand = new LambdaCommand(OnOpenCustomersExecuted, CanOpenCustomers);
+            AddCustomerCommand = new LambdaCommand(OnAddCustomerExecuted, CanAddCustomer);
+            OpenChecksCommand = new LambdaCommand(OnOpenChecksExecuted, CanOpenChecks);
+            AddCheckCommand = new LambdaCommand(OnAddCheckExecuted, CanAddCheck);
         }
 
         #region Products Click
@@ -28,9 +37,9 @@ namespace Shop
         private bool CanOpenProducts(object p) => true;
         private void OnOpenProductsExecuted(object p)
         {
-            var catalogCustomers = new Catalog("products");
-            catalogCustomers.Show();
-            catalogCustomers.Owner = App.Current.MainWindow;
+            var catalogProducts = new CatalogWindows.CatalogProductsWindow.CatalogProductsWindow();
+            catalogProducts.ShowDialog();
+            catalogProducts.Owner = App.Current.MainWindow;
         }
         #endregion
         #region Add product click
@@ -42,51 +51,92 @@ namespace Shop
         private void OnAddProductExecuted(object p)
         {
             var addProductWindow = new AddProduct();
-            addProductWindow.Show();
+            addProductWindow.ShowDialog();
             addProductWindow.Owner = App.Current.MainWindow;
         }
         #endregion
 
-
-
         #region Sellers Click
         /// <summary>
-        /// Команда "Продукты".
+        /// Команда "Продавцы".
         /// </summary>
         public ICommand OpenSellersCommand { get; }
         private bool CanOpenSellers(object p) => true;
         private void OnOpenSellersExecuted(object p)
         {
-            var catalogCustomers = new Catalog("sellers");
-            catalogCustomers.Show();
+            var catalogCustomers = new Catalog();
+            catalogCustomers.DataContext = catalogCustomers;
+            catalogCustomers.ShowDialog();
             catalogCustomers.Owner = App.Current.MainWindow;
         }
         #endregion
-        #region Checks Click
+        #region Add seller click
         /// <summary>
-        /// Команда "Продукты".
+        /// Команда "Добавить для продавца".
         /// </summary>
-        public ICommand OpenChecksCommand { get; }
-        private bool CanOpenChecks(object p) => true;
-        private void OnOpenChecksExecuted(object p)
+        public ICommand AddSellerCommand { get; }
+        private bool CanAddSeller(object p) => true;
+        private void OnAddSellerExecuted(object p)
         {
-            var catalogCustomers = new Catalog("checks");
-            catalogCustomers.Show();
-            catalogCustomers.Owner = App.Current.MainWindow;
+            var addSellerWindow = new AddSeller();
+            addSellerWindow.ShowDialog();
+            addSellerWindow.Owner = App.Current.MainWindow;
         }
         #endregion
-        #region Checks Customers
+
+        #region Customers click
         /// <summary>
-        /// Команда "Продукты".
+        /// Команда "Покупатели".
         /// </summary>
         public ICommand OpenCustomersCommand { get; }
         private bool CanOpenCustomers(object p) => true;
         private void OnOpenCustomersExecuted(object p)
         {
-            var catalogCustomers = new Catalog("customers");
-            catalogCustomers.Show();
+            var catalogCustomers = new Catalog();
+            catalogCustomers.ShowDialog();
             catalogCustomers.Owner = App.Current.MainWindow;
         }
         #endregion
+        #region Add customer click
+        /// <summary>
+        /// Команда "Добавить для покупателя".
+        /// </summary>
+        public ICommand AddCustomerCommand { get; }
+        private bool CanAddCustomer(object p) => true;
+        private void OnAddCustomerExecuted(object p)
+        {
+            var addCustomerWindow = new AddCustomer();
+            addCustomerWindow.ShowDialog();
+            addCustomerWindow.Owner = App.Current.MainWindow;
+        }
+        #endregion
+
+        #region Checks click
+        /// <summary>
+        /// Команда "Чеки".
+        /// </summary>
+        public ICommand OpenChecksCommand { get; }
+        private bool CanOpenChecks(object p) => true;
+        private void OnOpenChecksExecuted(object p)
+        {
+            var catalogCustomers = new Catalog();
+            catalogCustomers.ShowDialog();
+            catalogCustomers.Owner = App.Current.MainWindow;
+        }
+        #endregion
+        #region Add check click
+        /// <summary>
+        /// Команда "Добавить чек".
+        /// </summary>
+        public ICommand AddCheckCommand { get; }
+        private bool CanAddCheck(object p) => true;
+        private void OnAddCheckExecuted(object p)
+        {
+            var addCheckWindow = new AddCheck();
+            addCheckWindow.ShowDialog();
+            addCheckWindow.Owner = App.Current.MainWindow;
+        }
+        #endregion
+
     }
 }

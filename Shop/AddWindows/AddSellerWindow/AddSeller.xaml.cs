@@ -12,14 +12,14 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace Shop.AddWindows
+namespace Shop.AddWindows.AddSellerWindow
 {
     /// <summary>
-    /// Interaction logic for AddProduct.xaml
+    /// Interaction logic for AddSeller.xaml
     /// </summary>
-    public partial class AddProduct : Window
+    public partial class AddSeller : Window
     {
-        public AddProduct()
+        public AddSeller()
         {
             InitializeComponent();
         }

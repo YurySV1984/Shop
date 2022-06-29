@@ -15,5 +15,10 @@ namespace Shop.BL.Model
         {
             return Name ?? "";
         }
+        public Customer() { }
+        public Customer(string? name)
+        {
+            Name = name;
+        }
     }
 }

@@ -12,14 +12,23 @@
     </Window.DataContext>
     <Grid>
         <Menu>
-            <MenuItem Name="Entitys" Header="Сущности">
-                <MenuItem Name="Goods" Header="Товар">
+            <MenuItem Header="Сущности">
+                <MenuItem Header="Товары">
                     <MenuItem Header="Посмотреть товары" Command="{Binding OpenProductsCommand}"/>
                     <MenuItem Header="Добавить" Command="{Binding AddProductCommand}"/>
                 </MenuItem>
 
-                <MenuItem Name="Seller" Header="Продавец" Command="{Binding OpenSellersCommand}"/>
-                <MenuItem Name="Customer" Header="Покупатель" Command="{Binding OpenCustomersCommand}"/>
+                <MenuItem Header="Продавцы">
+                    <MenuItem Header="Посмотреть продавцов" Command="{Binding OpenSellersCommand}"/>
+                    <MenuItem Header="Добавить" Command="{Binding AddSellerCommand}"/>
+                </MenuItem>
+
+                <MenuItem Header="Покупатели">
+                    <MenuItem Header="Посмотреть покупателей" Command="{Binding OpenCustomersCommand}"/>
+                    <MenuItem Header="Добавить" Command="{Binding AddCustomerCommand}"/>
+                </MenuItem>
+
+
                 <MenuItem Name="Check" Header="Чек" Command="{Binding OpenChecksCommand}"/>
             </MenuItem>
 

@@ -19,5 +19,10 @@ namespace Shop.BL.Model
         {
             return $"Чек {CheckId} от {Created:dd.mm.yy hh:mm:ss}";
         }
+        public Check() { }
+        public Check(DateTime created)
+        {
+            Created = created;
+        }
     }
 }

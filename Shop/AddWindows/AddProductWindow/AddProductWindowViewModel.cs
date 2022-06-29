@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
-namespace Shop.AddProductWindows
+namespace Shop.AddWindows.AddProductWindow
 {
     internal class AddProductWindowViewModel
     {
@@ -40,15 +40,12 @@ namespace Shop.AddProductWindows
             set { _productArticul = value; }
         }
 
-
         private int? _count = null;
         public int? ProductCount
         {
             get { return _count; }
             set { _count = value; }
         }
-
-
 
 
 
@@ -74,10 +71,10 @@ namespace Shop.AddProductWindows
             var product = new Product(ProductName, (decimal)ProductPrice, ProductUnit, (int)ProductCount);
             using (var context = new ShopContext())
             {
-                if (context.Products.Where(p => p.Name == ProductName).FirstOrDefault() == null)
+                if (context?.Products?.Where(p => p.Name == ProductName).FirstOrDefault() == null)
                 {
-                    context.Products.Add(product);
-                    context.SaveChanges();
+                    context?.Products?.Add(product);
+                    context?.SaveChanges();
                     MessageBox.Show($"Продукт \"{ProductName}\" успешно добавлен");
                 }
                 else { MessageBox.Show($"Продукт \"{ProductName}\" уже есть в базе"); }

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shop
+namespace Shop.AddWindows.AddCheckWindow
 {
-    internal interface IDataset
+    internal class AddCheckWindowViewModel
     {
 
     }
