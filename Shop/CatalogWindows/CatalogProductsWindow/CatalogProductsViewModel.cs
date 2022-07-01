@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace Shop.CatalogWindows.CatalogProductsWindow
@@ -26,12 +27,12 @@ namespace Shop.CatalogWindows.CatalogProductsWindow
             DeleteProductCommand = new LambdaCommand(OnDeleteProductExecuted, CanDeleteProduct);
             ChangeProductCommand = new LambdaCommand(OnChangeProductExecuted, CanChangeProduct);
         }
-        private Product _productToModify;
 
-        public Product ProductToModify
+        private Product _selectedProduct;
+        public Product SelectedProduct
         {
-            get { return _productToModify; }
-            set { _productToModify = value; }
+            get { return _selectedProduct; }
+            set { _selectedProduct = value; }
         }
 
 
@@ -66,9 +67,13 @@ namespace Shop.CatalogWindows.CatalogProductsWindow
                 if (prodToChange == null)
                 {
                     context.Products.Add(product);
+                    MessageBox.Show($"Продукт {product.Name} добавлен");
                 }
+                else MessageBox.Show($"Продукт {product.Name} изменен");
                 context.SaveChanges();
+                
             }
+
         }
         #endregion
 

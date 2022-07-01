@@ -16,11 +16,10 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
-            <RowDefinition Height="50" />
         </Grid.RowDefinitions>
 
         
-        <DataGrid ItemsSource="{Binding Products}" IsReadOnly="False" AutoGenerateColumns="false" SelectedItem="{Binding ProductToModify}">
+        <DataGrid ItemsSource="{Binding Products, Mode=TwoWay}" IsReadOnly="False" AutoGenerateColumns="false" SelectedItem="{Binding SelectedProduct}">
 
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Наименование" Binding="{Binding Name, Mode=TwoWay}" />

@@ -1,0 +1,48 @@
+﻿<Window x:Class="Shop.CatalogWindows.CatalogCustomersWindow.CatalogCustomersWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Shop.CatalogWindows.CatalogCustomersWindow"
+        mc:Ignorable="d"
+        Title="CatalogCustomersWindow" Height="450" Width="800">
+    <Window.Resources>
+        <local:CatalogCustomresViewModel x:Key="vm"/>
+    </Window.Resources>
+    <Grid DataContext="{StaticResource vm}">
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+
+        <DataGrid ItemsSource="{Binding Customers, Mode=TwoWay}" IsReadOnly="False" AutoGenerateColumns="false" SelectedItem="{Binding SelectedCustomer}">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ФИО покупателя" Binding="{Binding Name, Mode=TwoWay}" />
+
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Удалить покупателя" Command="{Binding DeleteCustomerCommand, Source={StaticResource vm}}" CommandParameter="{Binding}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Изменить покупателя" Command="{Binding ChangeCustomerCommand, Source={StaticResource vm}}" CommandParameter="{Binding}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+
+
+
+        </DataGrid>
+
+    </Grid>
+</Window>

@@ -64,10 +64,9 @@ namespace Shop
         private bool CanOpenSellers(object p) => true;
         private void OnOpenSellersExecuted(object p)
         {
-            var catalogCustomers = new Catalog();
-            catalogCustomers.DataContext = catalogCustomers;
-            catalogCustomers.ShowDialog();
-            catalogCustomers.Owner = App.Current.MainWindow;
+            var catalogSellers = new CatalogWindows.CatalogSellersWindow.CatalogSellersWindow();
+            catalogSellers.ShowDialog();
+            catalogSellers.Owner = App.Current.MainWindow;
         }
         #endregion
         #region Add seller click
@@ -92,7 +91,7 @@ namespace Shop
         private bool CanOpenCustomers(object p) => true;
         private void OnOpenCustomersExecuted(object p)
         {
-            var catalogCustomers = new Catalog();
+            var catalogCustomers = new CatalogWindows.CatalogCustomersWindow.CatalogCustomersWindow();
             catalogCustomers.ShowDialog();
             catalogCustomers.Owner = App.Current.MainWindow;
         }
