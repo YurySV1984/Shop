@@ -28,6 +28,10 @@ namespace Shop.BL.Model
         /// Счетчик покупателей, ушедших без покупки.
         /// </summary>
         public int ExitCustomer { get; set; }
+        public int Count()
+        {
+            return Queue.Count;
+        }
         public bool IsModel { get; set; }
 
         private ShopContext context = new ShopContext();
