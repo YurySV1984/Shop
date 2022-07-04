@@ -19,7 +19,7 @@ namespace Shop.BL.Model.Tests
             //Act
             shop.StartShop();
             //Assert
-
+            
         }
     }
 }

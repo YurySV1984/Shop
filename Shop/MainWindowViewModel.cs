@@ -1,5 +1,4 @@
-﻿using Shop.AddWindows;
-using Shop.AddWindows.AddCheckWindow;
+﻿using Shop.AddWindows.AddCheckWindow;
 using Shop.AddWindows.AddCustomerWindow;
 using Shop.AddWindows.AddProductWindow;
 using Shop.AddWindows.AddSellerWindow;
@@ -27,6 +26,7 @@ namespace Shop
             AddCustomerCommand = new LambdaCommand(OnAddCustomerExecuted, CanAddCustomer);
             OpenChecksCommand = new LambdaCommand(OnOpenChecksExecuted, CanOpenChecks);
             AddCheckCommand = new LambdaCommand(OnAddCheckExecuted, CanAddCheck);
+            OpenSimulatorCommand = new LambdaCommand(OnOpenSimulatorExecuted, CanOpenSimulator);
         }
 
         #region Products Click
@@ -137,5 +137,18 @@ namespace Shop
         }
         #endregion
 
+        #region Checks click
+        /// <summary>
+        /// Команда "Чеки".
+        /// </summary>
+        public ICommand OpenSimulatorCommand { get; }
+        private bool CanOpenSimulator(object p) => true;
+        private void OnOpenSimulatorExecuted(object p)
+        {
+            var simulatorWindow = new Simulator.SimulatorWindow();
+            simulatorWindow.ShowDialog();
+            simulatorWindow.Owner = App.Current.MainWindow;
+        }
+        #endregion
     }
 }

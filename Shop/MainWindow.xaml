@@ -30,6 +30,7 @@
 
 
                 <MenuItem Name="Check" Header="Чек" Command="{Binding OpenChecksCommand}"/>
+                <MenuItem Name="Simulator" Header="Симулятор" Command="{Binding OpenSimulatorCommand}"/>
             </MenuItem>
 
         </Menu>

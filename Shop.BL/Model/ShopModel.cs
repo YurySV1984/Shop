@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,75 +9,89 @@ namespace Shop.BL.Model
 {
     public class ShopModel
     {
+        
         ContentGenerator _contentGenerator = new();
-
-        public Queue<Seller> Sellers { get; set; }
-        public List<CashBox> CashBoxes { get; set; }
-        public List<Check> Checks { get; set; }
-        public List<Sell> Sells { get; set; }
-        public List<Cart> Carts { get; set; }
+        const int numberOfCashBoxes = 5;
+        const int sleep = 10000;
+        public Queue<Seller>? Sellers { get; set; }
+        public ObservableCollection<Customer>? Customers { get; set; }
+        public ObservableCollection<CashBox>? CashBoxes { get; set; }
+        //public ObservableCollection<Cart>? Carts { get; set; }
+        public decimal[] CashList = new decimal[numberOfCashBoxes];
+        public bool IsWorking { get; set; } = false;
+        Random random = new();
         public ShopModel()
         {
-            var sellersToQueue = _contentGenerator.GenerateSellers(5);
-            _contentGenerator.GenerateProducts(500);
-            _contentGenerator.GenerateCustomers(100);
+            var sellersToQueue = _contentGenerator.GenerateSellers(numberOfCashBoxes);
+            _contentGenerator.GenerateProducts(10);
+            //_contentGenerator.GenerateCustomers(10);
             //Продавцы на кассы.
             Sellers = new Queue<Seller>();
-            CashBoxes = new List<CashBox>();
+            //Кассы.
+            CashBoxes = new ObservableCollection<CashBox>();
             foreach (var seller in sellersToQueue)
             {
                 Sellers.Enqueue(seller);
             }
             //Создание касс.
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < numberOfCashBoxes; i++)
             {
                 CashBoxes.Add(new CashBox(CashBoxes.Count + 1, Sellers.Dequeue()));
             }
         }
 
-        public async void StartShop()
+        public void StartShop()
         {
-            var customers = _contentGenerator.GenerateCustomers(15);
-            var carts = new Queue<Cart>();
-            foreach (var customer in customers)
+            IsWorking = true;
+            Task.Run(() => CreateCarts(5));
+            Thread.Sleep(500);
+            var tasks = CashBoxes.Select(cb => new Task(() => CashBoxDequeue(cb)));
+            foreach (var task in tasks)
             {
-                var cart = new Cart(customer);
-                var productsToAdd = _contentGenerator.GetRandomProducts(1, 15);
-                foreach (var product in productsToAdd)
+                task.Start();
+            }
+        }
+        public void StopShop()
+        {
+            IsWorking = false;
+        }
+
+        public void CreateCarts(int numberOfCustomers)
+        {
+            while (IsWorking)
+            {
+                Customers = _contentGenerator.GenerateCustomers(numberOfCustomers);
+                foreach (var customer in Customers)
                 {
-                    cart.Add(product);
+                    var cart = new Cart(customer);
+                    var productsToAdd = _contentGenerator.GetRandomProducts(5, 30);
+                    foreach (Product product in productsToAdd)
+                    {
+                        cart.Add(product);
+                    }
+
+                    var minQueueOfAllCashBoxes = CashBoxes?.Min(box => box.Queue.Count);
+                    var cashBoxWithMinQueue = CashBoxes?.FirstOrDefault(box => box.Queue.Count == minQueueOfAllCashBoxes);
+                    cashBoxWithMinQueue?.Enqueue(cart);
+                    
                 }
-                carts.Enqueue(cart);
+                Thread.Sleep(random.Next(sleep));
+
             }
-
-
-            while (carts.Count > 0)
-            {
-                var minQueueCashBoxCount = CashBoxes.Min(box => box.Queue.Count);
-                var cashBox = CashBoxes.FirstOrDefault(box => box.Queue.Count == minQueueCashBoxCount);
-                cashBox.Enqueue(carts.Dequeue());
-            }
-
-            var cashlist = new List<(int, decimal)>();
-            foreach (var cashbox in CashBoxes)
-            {
-                var cashKey = await WorkOneCashBox(cashbox);
-                var intVal = cashbox.Number;
-                cashlist.Add((intVal, cashKey));
-            }
-
         }
-
-        private async Task<decimal> WorkOneCashBox(CashBox cashBox)
+        private void CashBoxDequeue(CashBox cashBox)
         {
-            var rnd = new Random();
-            decimal result = 0;
-            Thread.Sleep(rnd.Next(25,500));
-            result += cashBox.Dequeue();
-
-
-            return result;
+            
+            while (IsWorking)
+            {
+                if (cashBox.Queue.Count > 0)
+                {
+                    var cashOfCashBox = cashBox.Dequeue();
+                    CashList[cashBox.Number - 1] += cashOfCashBox;
+                    Thread.Sleep(random.Next(sleep));
+                }
+            }
         }
-        
+
     }
 }

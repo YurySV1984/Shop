@@ -15,9 +15,11 @@ namespace Shop.BL.Model
         public virtual Seller? Seller { get; set; }
         public virtual ICollection<Sell>? Sells { get; set; }
         public DateTime Created { get; set; }
+        public decimal? CheckSum { get; set; }
+        //public List<Product> CheckProducts { get; set; }
         public override string ToString()
         {
-            return $"Чек {CheckId} от {Created:dd.mm.yy hh:mm:ss}";
+            return $"Чек {CheckId} от {Created:dd.MM hh:mm:ss}";
         }
         public Check() { }
         public Check(DateTime created)

@@ -28,11 +28,14 @@ namespace Shop.BL.Model
         /// Счетчик покупателей, ушедших без покупки.
         /// </summary>
         public int ExitCustomer { get; set; }
+        public Check CurrentCheck { get; set; }
+
+        public event EventHandler<Check> IsSold;
         public int Count()
         {
             return Queue.Count;
         }
-        public bool IsModel { get; set; }
+        public bool IsSimulation { get; set; }
 
         private ShopContext context = new ShopContext();
         public CashBox(int number, Seller seller)
@@ -40,7 +43,7 @@ namespace Shop.BL.Model
             Number = number;
             Seller = seller;
             Queue = new Queue<Cart>();
-            IsModel = true;
+            IsSimulation = true;
         }
 
         public void Enqueue(Cart cart)
@@ -61,20 +64,17 @@ namespace Shop.BL.Model
             var cart = Queue.Dequeue();
             if (cart != null)
             {
-                var check = new Check();
-                check.Seller = this.Seller;
-                check.SellerId = this.Seller.SellerId;
-                check.Customer = cart.Customer;
-                check.CustomerId = cart.Customer.CustomerId;
-                check.Created = DateTime.Now;
-
-
-                if (!IsModel)
+                var check = new Check
                 {
-                    context.Checks.Add(check);
-                    context.SaveChanges();
-                }
-                else
+                    Seller = this.Seller,
+                    SellerId = this.Seller.SellerId,
+                    Customer = cart.Customer,
+                    CustomerId = cart.Customer.CustomerId,
+                    Created = DateTime.Now,
+                    //CheckProducts = new List<Product>(),
+                    CheckSum = 0
+                };
+                if (!IsSimulation)
                 {
                     check.CheckId = 0;
                 }
@@ -92,7 +92,9 @@ namespace Shop.BL.Model
                             Product = product
                         };
                         sells.Add(sell);
-                        if (!IsModel)
+                        //check.CheckProducts.Add(product);
+                        //check.CheckSum += product.Price;
+                        if (!IsSimulation)
                         {
                             context.Sells.Add(sell);
                         }
@@ -100,10 +102,15 @@ namespace Shop.BL.Model
                         result += product.Price;
                     }
                 }
-                if (!IsModel)
+                check.CheckSum = result;
+                CurrentCheck = check;
+                IsSold?.Invoke(this, check);
+                if (!IsSimulation)
                 {
+                    context.Checks.Add(check);
                     context.SaveChanges();
                 }
+                
             }
             return result;
         }
