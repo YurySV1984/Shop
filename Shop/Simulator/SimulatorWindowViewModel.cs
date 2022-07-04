@@ -44,6 +44,19 @@ namespace Shop.Simulator
             set { Set(ref _checksList, value); }
         }
 
+        private int _selectedCheck;
+
+        public int SelectedCheck
+        {
+            get { return _selectedCheck; }
+            set { Set(ref _selectedCheck, value); }
+        }
+        //public int SelectedCheck
+        //{
+        //    get { return _selectedCheck; }
+        //    set { Set(ref _selectedCheck, value); }
+        //}
+
         private string _checkString;
         public string CheckString
         {
@@ -56,8 +69,8 @@ namespace Shop.Simulator
         //public ObservableCollection<Sell>? Sells { get; set; }
         //public ObservableCollection<Cart>? Carts { get; set; }
 
-        private decimal[] _cashList;
-        public decimal[] CashList
+        private ObservableCollection<decimal> _cashList;
+        public ObservableCollection<decimal> CashList
         {
             get { return _cashList; }
             set { Set(ref _cashList, value); }
@@ -86,21 +99,21 @@ namespace Shop.Simulator
                 Sellers = shopModel.Sellers;
                 Customers = shopModel.Customers;
 
-                CashList = shopModel.CashList;
+                //CashList = shopModel.CashList;
 
                 CashBoxes = shopModel.CashBoxes;
                 foreach (var cashbox in CashBoxes)
                 {
                     cashbox.IsSold += new EventHandler<Check>(LoadCheck);
                 }
-                while (shopModel.IsWorking)
-                {
-                    //Sellers = shopModel.Sellers;
-                    Customers = shopModel.Customers;
+                //while (shopModel.IsWorking)
+                //{
+                //    //Sellers = shopModel.Sellers;
+                //    //Customers = shopModel.Customers;
                     
-                    //CashList = shopModel.CashList;
+                //    //CashList = shopModel.CashList;
                     
-                }
+                //}
             });
 
 
@@ -125,9 +138,10 @@ namespace Shop.Simulator
             CheckString = $"{check.Customer} купил у продавца {check.Seller} товаров на сумму {check.CheckSum}, время {check.Created:dd.MM, hh:mm:ss}";
             CurrentCheck = check;
             checkstrings.Add(CheckString);
-            lock (locker)
                 ChecksList = new ObservableCollection<string>(checkstrings);
-            CashList = shopModel.CashList;
+                SelectedCheck = ChecksList.Count - 1;
+                CashList = new ObservableCollection<decimal>(shopModel.CashList);
+           
         }
     }
 }

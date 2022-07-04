@@ -92,8 +92,6 @@ namespace Shop.BL.Model
                             Product = product
                         };
                         sells.Add(sell);
-                        //check.CheckProducts.Add(product);
-                        //check.CheckSum += product.Price;
                         if (!IsSimulation)
                         {
                             context.Sells.Add(sell);

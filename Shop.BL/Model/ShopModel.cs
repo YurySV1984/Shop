@@ -11,12 +11,12 @@ namespace Shop.BL.Model
     {
         
         ContentGenerator _contentGenerator = new();
-        const int numberOfCashBoxes = 5;
-        const int sleep = 10000;
+        const int numberOfCashBoxes = 2;
+        const int sleep = 25000;
         public Queue<Seller>? Sellers { get; set; }
         public ObservableCollection<Customer>? Customers { get; set; }
         public ObservableCollection<CashBox>? CashBoxes { get; set; }
-        //public ObservableCollection<Cart>? Carts { get; set; }
+
         public decimal[] CashList = new decimal[numberOfCashBoxes];
         public bool IsWorking { get; set; } = false;
         Random random = new();
@@ -43,8 +43,7 @@ namespace Shop.BL.Model
         public void StartShop()
         {
             IsWorking = true;
-            Task.Run(() => CreateCarts(5));
-            Thread.Sleep(500);
+            Task.Run(() => CreateCarts(7));            
             var tasks = CashBoxes.Select(cb => new Task(() => CashBoxDequeue(cb)));
             foreach (var task in tasks)
             {
@@ -73,9 +72,9 @@ namespace Shop.BL.Model
                     var minQueueOfAllCashBoxes = CashBoxes?.Min(box => box.Queue.Count);
                     var cashBoxWithMinQueue = CashBoxes?.FirstOrDefault(box => box.Queue.Count == minQueueOfAllCashBoxes);
                     cashBoxWithMinQueue?.Enqueue(cart);
-                    
+                    Thread.Sleep(random.Next(1000, sleep/5));
                 }
-                Thread.Sleep(random.Next(sleep));
+                
 
             }
         }
@@ -88,7 +87,7 @@ namespace Shop.BL.Model
                 {
                     var cashOfCashBox = cashBox.Dequeue();
                     CashList[cashBox.Number - 1] += cashOfCashBox;
-                    Thread.Sleep(random.Next(sleep));
+                    Thread.Sleep(random.Next(7000, sleep));
                 }
             }
         }

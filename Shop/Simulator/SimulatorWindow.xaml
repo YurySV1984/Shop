@@ -28,12 +28,10 @@
         </DataGrid>
         <DataGrid AutoGenerateColumns="False" IsReadOnly="True" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" ItemsSource="{Binding CashBoxes, UpdateSourceTrigger=PropertyChanged}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Касса" Binding="{Binding Number}" />
-                <DataGridTextColumn Header="Продавец" Binding="{Binding Seller}" />
-                <DataGridTextColumn Header="Ушло" Binding="{Binding ExitCustomer}" />
-                <DataGridTextColumn Header="Покупатель" Binding="{Binding CurrentCheck.Customer.Name, UpdateSourceTrigger=PropertyChanged}" >
-
-                </DataGridTextColumn>
+                <DataGridTextColumn Header="Касса" Binding="{Binding Number, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="Продавец" Binding="{Binding Seller, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="Ушло" Binding="{Binding ExitCustomer, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="Покупатель" Binding="{Binding CurrentCheck.Customer.Name, UpdateSourceTrigger=PropertyChanged}" />
                 <DataGridTextColumn Header="Время" Binding="{Binding CurrentCheck.Created, UpdateSourceTrigger=PropertyChanged}"/>
                 <DataGridTextColumn Header="Сумма" Binding="{Binding CurrentCheck.CheckSum, UpdateSourceTrigger=PropertyChanged}"/>
             </DataGrid.Columns>
@@ -44,7 +42,7 @@
             <Label Content="{Binding CurrentCheck.Created}"/>
             
         </StackPanel>
-        <DataGrid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding ChecksList, UpdateSourceTrigger=PropertyChanged}" >
+        <DataGrid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding ChecksList, UpdateSourceTrigger=PropertyChanged}" SelectedIndex="{Binding SelectedCheck}" AutoGenerateColumns="False">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding}"/>
 

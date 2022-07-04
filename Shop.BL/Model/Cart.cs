@@ -47,7 +47,6 @@ namespace Shop.BL.Model
             {
                 result.Add(product);
             }
-
             return result;
         }
     }
