@@ -1,6 +1,7 @@
 ﻿using Shop.BL.Model;
 using Shop.Commands.Base;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -13,17 +14,9 @@ namespace Shop.Simulator
     internal class SimulatorWindowViewModel : ViewModel
     {
         private ShopModel shopModel = new();
-        public Queue<Seller>? Sellers { get; set; }
 
-        private ObservableCollection<Customer> _customers = new ObservableCollection<Customer>();
-        public ObservableCollection<Customer> Customers
-        {
-            get { return _customers; }
-            set { Set(ref _customers, value); }
-        }
 
         private ObservableCollection<CashBox>? _cashBoxes;
-
         public ObservableCollection<CashBox>? CashBoxes
         {
             get { return _cashBoxes; }
@@ -37,26 +30,6 @@ namespace Shop.Simulator
             set { Set(ref _currentCheck, value); }
         }
 
-        private ObservableCollection<string> _checksList = new ObservableCollection<string>();
-        public ObservableCollection<string> ChecksList
-        {
-            get { return _checksList; }
-            set { Set(ref _checksList, value); }
-        }
-
-        private int _selectedCheck;
-
-        public int SelectedCheck
-        {
-            get { return _selectedCheck; }
-            set { Set(ref _selectedCheck, value); }
-        }
-        //public int SelectedCheck
-        //{
-        //    get { return _selectedCheck; }
-        //    set { Set(ref _selectedCheck, value); }
-        //}
-
         private string _checkString;
         public string CheckString
         {
@@ -65,24 +38,60 @@ namespace Shop.Simulator
         }
 
         object locker = new();  // объект-заглушка
-        //public ObservableCollection<Check>? Checks { get; set; }
-        //public ObservableCollection<Sell>? Sells { get; set; }
-        //public ObservableCollection<Cart>? Carts { get; set; }
 
-        private ObservableCollection<decimal> _cashList;
-        public ObservableCollection<decimal> CashList
+        private int _sleepEnqueue = 5000;
+        public int SleepEnqueue
         {
-            get { return _cashList; }
-            set { Set(ref _cashList, value); }
+            get { return _sleepEnqueue; }
+            set { Set(ref _sleepEnqueue, value); }
+        }
+        private int _sleepDequeue = 24000;
+        public int SleepDequeue
+        {
+            get { return _sleepDequeue; }
+            set { Set(ref _sleepDequeue, value); }
         }
 
-        private List<string> checkstrings = new List<string>();
+        //private List<string> _checkstrings = new List<string>();
+        //public List<string> Checkstrings
+        //{
+        //    get { return _checkstrings; }
+        //    set { Set(ref _checkstrings, value); }
+        //}
+
+        private ObservableCollection<string> _checkStringsVM;
+        public ObservableCollection<string> CheckStringsVM
+        {
+            get { return _checkStringsVM; }
+            set { Set(ref _checkStringsVM, value); }
+        }
+
 
         public SimulatorWindowViewModel()
         {
             StartCommand = new LambdaCommand(OnStartExecuted, CanStart);
             StopCommand = new LambdaCommand(OnStopExecuted, CanStop);
+            AddCashBoxCommand = new LambdaCommand(OnAddCashBoxExecuted, CanAddCashBox);
+            DeleteCashBoxCommand = new LambdaCommand(OnDeleteCashBoxExecuted, CanDeleteCashBox);
         }
+
+        private Notifications notifications;
+        
+        //private BlockingCollection<string> _strings;
+        //public List<string> ChckStrngs
+        //{
+        //    get { return _strings == null ? new List<string>() : _strings.ToList(); }
+        //    //set { Set(ref _strings, value); }
+        //}
+
+
+        private ObservableCollection<CashBoxTable> _cashBoxesTable;
+        public ObservableCollection<CashBoxTable> CashBoxesTable
+        {
+            get { return _cashBoxesTable; }
+            set { Set(ref _cashBoxesTable, value); }
+        }
+        private CashBoxTable[] _cashBoxTablesArray { get; set; }
 
         #region Start sim click
         /// <summary>
@@ -93,27 +102,25 @@ namespace Shop.Simulator
         private void OnStartExecuted(object p)
         {
             shopModel.StartShop();
-
+            shopModel.CashBoxChanged += new EventHandler<CashBox>(CashBoxChanged);
+            notifications = new();
+            //_strings = notifications.CheckStrings;
             Task.Run(() =>
             {
-                Sellers = shopModel.Sellers;
-                Customers = shopModel.Customers;
-
-                //CashList = shopModel.CashList;
-
                 CashBoxes = shopModel.CashBoxes;
-                foreach (var cashbox in CashBoxes)
+                _cashBoxTablesArray = new CashBoxTable[shopModel.CashBoxes.Count];
+                for (int i = 0; i < _cashBoxTablesArray.Length; i++)
                 {
-                    cashbox.IsSold += new EventHandler<Check>(LoadCheck);
+                    _cashBoxTablesArray[i] = new CashBoxTable(CashBoxes[i]);
                 }
-                //while (shopModel.IsWorking)
-                //{
-                //    //Sellers = shopModel.Sellers;
-                //    //Customers = shopModel.Customers;
-                    
-                //    //CashList = shopModel.CashList;
-                    
-                //}
+
+                while (shopModel.IsWorking)
+                {
+                    shopModel.SleepEnqueue = SleepEnqueue;
+                    shopModel.SleepDequeue = SleepDequeue;
+                    CashBoxesTable = new ObservableCollection<CashBoxTable>(_cashBoxTablesArray);
+                    CheckStringsVM = notifications.GetCheckStrings();
+                }
             });
 
 
@@ -129,19 +136,55 @@ namespace Shop.Simulator
         private void OnStopExecuted(object p)
         {
             shopModel.StopShop();
-            
         }
         #endregion
 
-        private void LoadCheck(object sender, Check check)
+        #region Add cashbox click
+        /// <summary>
+        /// Команда "Добавить кассу".
+        /// </summary>
+        public ICommand AddCashBoxCommand { get; }
+        private bool CanAddCashBox(object p) => true;
+        private void OnAddCashBoxExecuted(object p)
         {
+            shopModel.AddCashBox();
+            CashBoxes = shopModel.CashBoxes;
+            _cashBoxTablesArray = new CashBoxTable[shopModel.CashBoxes.Count];
+            
+            for (int i = 0; i < _cashBoxTablesArray.Length; i++)
+            {
+                _cashBoxTablesArray[i] = new CashBoxTable(CashBoxes[i]);
+                _cashBoxTablesArray[i].CashBoxProfit = shopModel.CashList[i];
+            }
+        }
+        #endregion
+
+        #region Delete cashbox click
+        /// <summary>
+        /// Команда "Удалить кассу".
+        /// </summary>
+        public ICommand DeleteCashBoxCommand { get; }
+        private bool CanDeleteCashBox(object p) => true;
+        private void OnDeleteCashBoxExecuted(object p)
+        {
+            shopModel.DeleteCashBox();
+            CashBoxes = shopModel.CashBoxes;
+            _cashBoxTablesArray = new CashBoxTable[shopModel.CashBoxes.Count];
+            for (int i = 0; i < _cashBoxTablesArray.Length; i++)
+            {
+                _cashBoxTablesArray[i] = new CashBoxTable(CashBoxes[i]);
+            }
+        }
+        #endregion
+
+        private void CashBoxChanged(object? sender, CashBox cashBox)
+        {
+            var check = cashBox.CurrentCheck;
+            
             CheckString = $"{check.Customer} купил у продавца {check.Seller} товаров на сумму {check.CheckSum}, время {check.Created:dd.MM, hh:mm:ss}";
+            notifications.AddCheckString(CheckString);
             CurrentCheck = check;
-            checkstrings.Add(CheckString);
-                ChecksList = new ObservableCollection<string>(checkstrings);
-                SelectedCheck = ChecksList.Count - 1;
-                CashList = new ObservableCollection<decimal>(shopModel.CashList);
-           
+            _cashBoxTablesArray[cashBox.Number - 1].CashBoxProfit = shopModel.CashList[cashBox.Number - 1];
         }
     }
 }

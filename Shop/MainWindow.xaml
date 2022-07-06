@@ -12,7 +12,7 @@
     </Window.DataContext>
     <Grid>
         <Menu>
-            <MenuItem Header="Сущности">
+            <MenuItem Header="Справочник">
                 <MenuItem Header="Товары">
                     <MenuItem Header="Посмотреть товары" Command="{Binding OpenProductsCommand}"/>
                     <MenuItem Header="Добавить" Command="{Binding AddProductCommand}"/>
@@ -30,8 +30,9 @@
 
 
                 <MenuItem Name="Check" Header="Чек" Command="{Binding OpenChecksCommand}"/>
-                <MenuItem Name="Simulator" Header="Симулятор" Command="{Binding OpenSimulatorCommand}"/>
+                
             </MenuItem>
+            <MenuItem Name="Simulator" Header="Симулятор" Command="{Binding OpenSimulatorCommand}"/>
 
         </Menu>
 
