@@ -9,7 +9,7 @@ namespace Shop.BL.Model
 {
     public class Cart : IEnumerable
     {
-        public Customer Customer { get; set; }
+        public Customer Customer { get; private set; }
         public Dictionary<Product, int> Products { get; set; }
 
         public Cart(Customer customer)
@@ -19,13 +19,16 @@ namespace Shop.BL.Model
         }
         public void Add(Product product)
         {
-            if (Products.TryGetValue(product, out int count))
+            if (product.Count > 0)
             {
-                Products[product] = ++count;
-            }
-            else
-            {
-                Products.Add(product, 1);
+                if (Products.TryGetValue(product, out int count))
+                {
+                    Products[product] = ++count;
+                }
+                else
+                {
+                    Products.Add(product, 1);
+                }
             }
         }
 
@@ -42,12 +45,18 @@ namespace Shop.BL.Model
 
         public List<Product> GetProductsList()
         {
-            var result = new List<Product>();
-            foreach (Product product in this)
+            return Products.Keys.ToList();
+        }
+
+        public void ReturnProducts()
+        {
+            foreach (var product in Products.Keys)
             {
-                result.Add(product);
+                for (int i = 0; i < Products[product]; i++)
+                {
+                    product.Count++;
+                }
             }
-            return result;
         }
     }
 }

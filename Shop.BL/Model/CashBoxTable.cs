@@ -8,7 +8,7 @@ namespace Shop.BL.Model
 {
     public class CashBoxTable
     {
-        public CashBox CashBox { get; set; }
+        private CashBox CashBox { get; set; }
         
         public int CashBoxNumber => CashBox.Number;
 
@@ -18,11 +18,13 @@ namespace Shop.BL.Model
             set { CashBoxQueueCount = value; }
         }
         public int CashBoxExitCustomers => CashBox.ExitCustomer;
+        public int CashBoxCustomersCount => CashBox.CustomersCount;
         public string CashBoxSeller => CashBox.Seller.Name;
-        private Check _currentCheck => CashBox.CurrentCheck;
-        public decimal? CurrentCheckSum => _currentCheck == null ? 0 : _currentCheck.CheckSum;
-        public string CurrentCheckCustomer => _currentCheck == null ? "" : _currentCheck.Customer.Name;
-        public DateTime CurrentCheckCreated => _currentCheck == null ? default(DateTime) : _currentCheck.Created;
+        public int CashBoxSellerSkills => CashBox.Seller.Skills;
+        private Check CurrentCheck => CashBox.CurrentCheck;
+        public decimal? CurrentCheckSum => CurrentCheck == null ? 0 : CurrentCheck.CheckSum;
+        public string CurrentCheckCustomer => CurrentCheck == null ? "" : CurrentCheck.Customer.Name;
+        public DateTime CurrentCheckCreated => CurrentCheck == null ? default : CurrentCheck.Created;
         public decimal CashBoxProfit { get; set; } = 0;
         public CashBoxTable(CashBox cashBox)
         {

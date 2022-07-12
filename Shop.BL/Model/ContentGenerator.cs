@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -9,20 +10,17 @@ namespace Shop.BL.Model
 {
     public class ContentGenerator
     {
-        public List<CashBox> CashBoxes = new();
-        public List<Customer> Customers = new();
-        public List<Seller> Sellers = new();
-        public List<Product> Products = new();
+        private List<Product> Products = new();
         Random rnd = new();
-        public ObservableCollection<Customer> GenerateCustomers(int amountToGenerate)
+        public BlockingCollection<Customer> GenerateCustomers(int amountToGenerate)
         {
-            var result = new ObservableCollection<Customer>();
-            Customers.Clear();
+            var result = new BlockingCollection<Customer>();
+            //Customers.Clear();
             for (int i = 0; i < amountToGenerate; i++)
             {
-                var customer = new Customer("customer " + rnd.Next(1, 100))
+                var customer = new Customer("customer " + (Guid.NewGuid().ToString()).Substring(0, 5))
                 {
-                    CustomerId = Customers.Count
+                    //CustomerId = Customers.Count
                 };
                 //Customers.Add(customer);
                 result.Add(customer);
@@ -35,11 +33,11 @@ namespace Shop.BL.Model
             var result = new List<Seller>();
             for (int i = 0; i < amountToGenerate; i++)
             {
-                var seller = new Seller("seller " + rnd.Next(1, 100))
+                var seller = new Seller("seller " + (Guid.NewGuid().ToString()).Substring(0,5), rnd.Next(4,11))
                 {
-                    SellerId = Sellers.Count
+                    //SellerId = Sellers.Count
                 };
-                Sellers.Add(seller);
+                //Sellers.Add(seller);
                 result.Add(seller);
             }
             return result;
@@ -50,9 +48,9 @@ namespace Shop.BL.Model
             var result = new List<Product>();
             for (int i = 0; i < amountToGenerate; i++)
             {
-                var product = new Product("товар " + Guid.NewGuid, rnd.Next(50, 1000), "ед.изм", rnd.Next(10, 1000))
+                var product = new Product("товар " + (Guid.NewGuid().ToString()).Substring(0, 5), rnd.Next(50, 1001), "ед.изм", rnd.Next(100, 1001))
                 {
-                    ProductId = Products.Count
+                    //ProductId = Products.Count
                 };
                 Products.Add(product);
                 result.Add(product);
@@ -69,12 +67,30 @@ namespace Shop.BL.Model
         public List<Product> GetRandomProducts(int min, int max)
         {
             var result = new List<Product>();
-            var resultCount = rnd.Next(min, max);
+            var resultCount = rnd.Next(min, max + 1);
             for (int i = 0; i < resultCount; i++)
             {
-                result.Add(Products[rnd.Next(Products.Count - 1)]);
-            }
+                result.Add(Products[rnd.Next(Products.Count)]);
+            }            
             return result;
+        }
+
+        public List<Product> GetStoreProducts()
+        {
+            return Products;
+        }
+
+        public void IncreaseProducts(int amount)
+        {
+            foreach (var product in Products)
+            {
+
+            }
+            var productsToIncrease = Products.Where(product => product.Count < amount);
+            foreach (var product in productsToIncrease)
+            {
+                product.Count += amount;
+            }
         }
     }
 }

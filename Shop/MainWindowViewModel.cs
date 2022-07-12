@@ -6,6 +6,7 @@ using Shop.BL.Model;
 using Shop.Commands.Base;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,10 +15,76 @@ using System.Windows.Input;
 
 namespace Shop
 {
-    internal class MainWindowViewModel : ViewModel
+    public class MainWindowViewModel : ViewModel
     {
+        private ShopHandler ShopHandler { get; set; } = new ShopHandler();
+
+        private ObservableCollection<CartVM> _cartVMs = new ObservableCollection<CartVM>();
+        public ObservableCollection<CartVM> CartVMs
+        {
+            get { return _cartVMs; }
+            set { Set(ref _cartVMs, value); }
+        }
+
+        private ObservableCollection<Seller> _sellersVM;
+        public ObservableCollection<Seller> SellersVM
+        {
+            get { return ShopHandler.GetSellersFromContext(); }
+            set { Set(ref _sellersVM, value); }
+        }
+        private Seller _selectedSeller;
+        public Seller SelectedSeller
+        {
+            get { return _selectedSeller; }
+            set { Set(ref _selectedSeller, value); }
+        }
+
+        private ObservableCollection<Customer> _customersVM;
+        public ObservableCollection<Customer> CustomersVM
+        {
+            get { return ShopHandler.GetCustomersFromContext(); }
+            set { Set(ref _customersVM, value); }
+        }
+        private Customer _selectedCustomer;
+        public Customer SelectedCustomer
+        {
+            get { return _selectedCustomer; }
+            set { Set(ref _selectedCustomer, value); }
+        }
+
+        private ObservableCollection<Product> _products;
+        public ObservableCollection<Product> Products
+        {
+            get { return ShopHandler.GetProductsFromContext(); }
+            set { Set(ref _products, value); }
+        }
+
+        private bool _isEnabledCreateCart = true;
+        public bool IsEnabledCreateCart
+        {
+            get { return _isEnabledCreateCart; }
+            set { Set(ref _isEnabledCreateCart, value); }
+        }
+        private bool _isEnabled = false;
+        public bool IsEnabled
+        {
+            get { return _isEnabled; }
+            set { Set(ref _isEnabled, value); }
+        }
+
+        private decimal _cartSum;
+
+        public decimal CartSum
+        {
+            get { return _cartSum; }
+            set { Set(ref _cartSum, value); }
+        }
+
+
         public MainWindowViewModel()
         {
+            
+            
             OpenProductsCommand = new LambdaCommand(OnOpenProductsExecuted, CanOpenProducts);
             AddProductCommand = new LambdaCommand(OnAddProductExecuted, CanAddProduct);
             OpenSellersCommand = new LambdaCommand(OnOpenSellersExecuted, CanOpenSellers);
@@ -27,6 +94,9 @@ namespace Shop
             OpenChecksCommand = new LambdaCommand(OnOpenChecksExecuted, CanOpenChecks);
             AddCheckCommand = new LambdaCommand(OnAddCheckExecuted, CanAddCheck);
             OpenSimulatorCommand = new LambdaCommand(OnOpenSimulatorExecuted, CanOpenSimulator);
+            AddProductToCartCommand = new LambdaCommand(OnAddProductToCartExecuted, CanAddProductToCart);
+            CreateCartCommand = new LambdaCommand(OnCreateCartExecuted,CanCreateCart);
+            CreateCheckCommand = new LambdaCommand(OnCreateCheckExecuted, CanCreateCheck);
         }
 
         #region Products Click
@@ -137,9 +207,9 @@ namespace Shop
         }
         #endregion
 
-        #region Checks click
+        #region Simulator click
         /// <summary>
-        /// Команда "Чеки".
+        /// Команда "Симулятор".
         /// </summary>
         public ICommand OpenSimulatorCommand { get; }
         private bool CanOpenSimulator(object p) => true;
@@ -150,5 +220,81 @@ namespace Shop
             simulatorWindow.Owner = App.Current.MainWindow;
         }
         #endregion
+
+
+        #region Create cart button
+        /// <summary>
+        /// Команда "Создать корзину".
+        /// </summary>
+        public ICommand CreateCartCommand { get; }
+        private bool CanCreateCart(object p) => true;
+        private void OnCreateCartExecuted(object p)
+        {
+            if (SelectedCustomer == null || SelectedSeller == null)
+            {
+                return;
+            }
+            Products = ShopHandler.GetProductsFromContext();
+            ShopHandler.SetSeller(SelectedSeller);
+            ShopHandler.SetCart(new Cart(SelectedCustomer));
+            IsEnabled = true;
+            IsEnabledCreateCart = false;
+            CartSum = 0;
+        }
+        #endregion
+
+        #region Create check button
+        /// <summary>
+        /// Команда "Создать чек".
+        /// </summary>
+        public ICommand CreateCheckCommand { get; }
+        private bool CanCreateCheck(object p) => true;
+        private void OnCreateCheckExecuted(object p)
+        {
+            if (ShopHandler.GetProductsCount() == 0 || string.IsNullOrWhiteSpace(ShopHandler.GetSellerName()) || ShopHandler.GetCart() == null || string.IsNullOrWhiteSpace(ShopHandler.GetCart().Customer.Name))
+            {
+                return;
+            }
+
+            ShopHandler.MakeDeal();
+            IsEnabled = false;
+            IsEnabledCreateCart = true;
+            CartSum = 0;
+            CartVMs.Clear();
+        }
+        #endregion
+
+        #region Add product click
+        /// <summary>
+        /// Команда "Выбрать покупателя".
+        /// </summary>
+        public ICommand AddProductToCartCommand { get; }
+        private bool CanAddProductToCart(object p) => true;
+        private void OnAddProductToCartExecuted(object p)
+        {
+            if (p is Product product)
+            {
+                ShopHandler.AddProduct(product);
+                CartSum += product.Price;
+                CartVMs = new ObservableCollection<CartVM>();
+                foreach (var prod in ShopHandler.Products)
+                {
+                    CartVMs.Add(new CartVM(prod.Key.Name, prod.Value, prod.Key.Price));
+                }
+
+            }   
+        }
+        #endregion
+
+
+
+
+
+
+
+        ~MainWindowViewModel()
+        {
+            ShopHandler.Dispose();
+        }
     }
 }

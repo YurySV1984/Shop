@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Shop
 {
-    internal abstract class ViewModel : INotifyPropertyChanged
+    public abstract class ViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string? PropertyName = null)

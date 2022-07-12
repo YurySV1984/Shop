@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,15 +12,15 @@ namespace Shop.BL.Model
         /// <summary>
         /// Номер кассы.
         /// </summary>
-        public int Number { get; set; }
+        public int Number { get; private set; }
         /// <summary>
         /// Продавец на кассе.
         /// </summary>
-        public Seller Seller { get; set; }
+        public Seller Seller { get; private set; }
         /// <summary>
         /// Очередь на кассе.
         /// </summary>
-        public Queue<Cart> Queue { get; set; }
+        public ConcurrentQueue<Cart> Queue { get; private set; }
         /// <summary>
         /// Максимальная длина очереди.
         /// </summary>
@@ -27,14 +28,13 @@ namespace Shop.BL.Model
         /// <summary>
         /// Счетчик покупателей, ушедших без покупки.
         /// </summary>
-        public int ExitCustomer { get; set; }
-        public Check CurrentCheck { get; set; }
+        public int ExitCustomer { get; private set; } = 0;
+        public int CustomersCount { get; private set; } = 0;
+        public bool IsClosing { get; set; } = false;
+        public Check CurrentCheck { get; private set; }
 
         public event EventHandler<Check> IsSold;
-        public int Count()
-        {
-            return Queue.Count;
-        }
+        public int Count() => Queue.Count;
         public bool IsSimulation { get; set; }
 
         private ShopContext context = new ShopContext();
@@ -42,7 +42,7 @@ namespace Shop.BL.Model
         {
             Number = number;
             Seller = seller;
-            Queue = new Queue<Cart>();
+            Queue = new ConcurrentQueue<Cart>();
             IsSimulation = true;
         }
 
@@ -55,35 +55,39 @@ namespace Shop.BL.Model
             else
             {
                 ExitCustomer++;
+                cart.ReturnProducts();
             }
         }
 
         public decimal Dequeue()
         {
             decimal result = 0;
-            var cart = Queue.Dequeue();
-            if (cart != null)
+            var tryDeq = false;
+            Cart Cart = null;
+            while (!tryDeq)
             {
-                var check = new Check
+                tryDeq = Queue.TryDequeue(out Cart);
+            }
+            if (Cart != null)
+            {
+                var check = new Check(DateTime.Now)
                 {
                     Seller = this.Seller,
                     SellerId = this.Seller.SellerId,
-                    Customer = cart.Customer,
-                    CustomerId = cart.Customer.CustomerId,
-                    Created = DateTime.Now,
-                    //CheckProducts = new List<Product>(),
-                    CheckSum = 0
+                    Customer = Cart.Customer,
+                    CustomerId = Cart.Customer.CustomerId,
                 };
                 if (!IsSimulation)
                 {
                     check.CheckId = 0;
                 }
 
-                var sells = new List<Sell>();
-                foreach (Product product in cart)
+                //var sells = new List<Sell>();
+                foreach (Product product in Cart)
                 {
                     if (product.Count > 0)
                     {
+                        check.ProductsInCheck.Add(product);
                         var sell = new Sell
                         {
                             CheckId = check.CheckId,
@@ -91,7 +95,7 @@ namespace Shop.BL.Model
                             ProductId = product.ProductId,
                             Product = product
                         };
-                        sells.Add(sell);
+                        //sells.Add(sell);
                         if (!IsSimulation)
                         {
                             context.Sells.Add(sell);
@@ -102,6 +106,7 @@ namespace Shop.BL.Model
                 }
                 check.CheckSum = result;
                 CurrentCheck = check;
+                CustomersCount++;
                 IsSold?.Invoke(this, check);
                 if (!IsSimulation)
                 {

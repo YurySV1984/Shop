@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -7,18 +8,39 @@ using System.Threading.Tasks;
 
 namespace Shop.BL.Model
 {
+    /// <summary>
+    /// Модель магазина.
+    /// </summary>
     public class ShopModel
     {
-        
         ContentGenerator _contentGenerator = new();
         public event EventHandler<CashBox> CashBoxChanged;
-        //const int numberOfCashBoxes = 2;
+        public event EventHandler<int> CashBoxDeleted;
+        /// <summary>
+        /// Число работающих касс.
+        /// </summary>
         public int NumberOfCashBoxes { get; set; } = 2;
+        /// <summary>
+        /// Задержка для задания скорости работы касс.
+        /// </summary>
         public int SleepDequeue { get; set; } = 24000;
+        /// <summary>
+        /// Задержка для задания скорости генерации покупателей.
+        /// </summary>
         public int SleepEnqueue { get; set; } = 5000;
+        /// <summary>
+        /// Пауза симулятора.
+        /// </summary>
+        public bool IsPaused { get; set; } = false;
+        /// <summary>
+        /// Очередь продавцов на новые кассы.
+        /// </summary>
         public Queue<Seller>? Sellers { get; set; }
-        public ObservableCollection<Customer>? Customers { get; set; }
-        public ObservableCollection<CashBox>? CashBoxes { get; set; }
+        /// <summary>
+        /// Новые покупатели.
+        /// </summary>
+        public BlockingCollection<Customer>? Customers { get; set; }
+        public BlockingCollection<CashBox>? CashBoxes { get; set; }
 
         public decimal[] CashList;
         public bool IsWorking { get; set; } = false;
@@ -32,7 +54,7 @@ namespace Shop.BL.Model
             //Продавцы на кассы.
             Sellers = new Queue<Seller>();
             //Кассы.
-            CashBoxes = new ObservableCollection<CashBox>();
+            CashBoxes = new BlockingCollection<CashBox>();
             foreach (var seller in sellersToQueue)
             {
                 Sellers.Enqueue(seller);
@@ -47,7 +69,7 @@ namespace Shop.BL.Model
         public void StartShop()
         {
             IsWorking = true;
-            Task.Run(() => CreateCarts(4));            
+            Task.Run(() => CreateCarts(4));
             var tasks = CashBoxes.Select(cb => new Task(() => CashBoxDequeue(cb)));
             foreach (var task in tasks)
             {
@@ -63,21 +85,24 @@ namespace Shop.BL.Model
         {
             while (IsWorking)
             {
-
-                Thread.Sleep(500);
-                Customers = _contentGenerator.GenerateCustomers(numberOfCustomers);
-                foreach (var customer in Customers)
+                if (!IsPaused)
                 {
-                    var cart = new Cart(customer);
-                    var productsToAdd = _contentGenerator.GetRandomProducts(5, 30);
-                    foreach (Product product in productsToAdd)
+                    Thread.Sleep(500);
+                    Customers = _contentGenerator.GenerateCustomers(numberOfCustomers);
+                    foreach (var customer in Customers)
                     {
-                        cart.Add(product);
+                        var cart = new Cart(customer);
+                        var productsToAdd = _contentGenerator.GetRandomProducts(5, 30);
+                        foreach (Product product in productsToAdd)
+                        {
+                            cart.Add(product);
+                        }
+                        var minQueueOfAllCashBoxes = CashBoxes?.Where(box => !box.IsClosing).Min(box => box.Queue.Count);
+                        var listCashBoxWithMinQueue = CashBoxes?.Where(box => box.Queue.Count == minQueueOfAllCashBoxes).ToList();
+                        var cashBoxWithMinQueue = listCashBoxWithMinQueue[random.Next(0, listCashBoxWithMinQueue.Count)];
+                        cashBoxWithMinQueue?.Enqueue(cart);
+                        Thread.Sleep(random.Next(SleepEnqueue / 4, SleepEnqueue));
                     }
-                    var minQueueOfAllCashBoxes = CashBoxes?.Min(box => box.Queue.Count);
-                    var cashBoxWithMinQueue = CashBoxes?.FirstOrDefault(box => box.Queue.Count == minQueueOfAllCashBoxes);
-                    cashBoxWithMinQueue?.Enqueue(cart);
-                    Thread.Sleep(random.Next(SleepEnqueue / 4, SleepEnqueue)); ;
                 }
             }
         }
@@ -85,17 +110,20 @@ namespace Shop.BL.Model
         {
             while (IsWorking)
             {
-                if (!CashBoxes.Contains(cashBox))
+                if (!IsPaused)
                 {
-                    break;
-                }
-                Thread.Sleep(random.Next(SleepDequeue / 4, SleepDequeue));
-                if (cashBox.Queue.Count > 0)
-                {
-                    var cashOfCashBox = cashBox.Dequeue();
-                    CashList[cashBox.Number - 1] += cashOfCashBox;
-                    CashBoxChanged?.Invoke(this, cashBox);
-                    Thread.Sleep(500);
+                    if (!CashBoxes.Contains(cashBox))
+                    {
+                        break;
+                    }
+                    Thread.Sleep(10 * random.Next(SleepDequeue / 4, SleepDequeue) / cashBox.Seller.Skills);
+                    if (!cashBox.Queue.IsEmpty)
+                    {
+                        var cashOfCashBox = cashBox.Dequeue();
+                        CashList[cashBox.Number - 1] += cashOfCashBox;
+                        CashBoxChanged?.Invoke(this, cashBox);
+                        Thread.Sleep(500);
+                    }
                 }
             }
         }
@@ -107,16 +135,22 @@ namespace Shop.BL.Model
             var sellerToQueue = _contentGenerator.GenerateSellers(1);
             Sellers = new Queue<Seller>();
             Sellers.Enqueue(sellerToQueue.FirstOrDefault());
-            CashBoxes.Add(new CashBox(CashBoxes.Count + 1, Sellers.Dequeue()));
+            var newCashBox = new CashBox(CashBoxes.Count + 1, Sellers.Dequeue());
+            bool tryAdd = false;
+            while (!tryAdd)
+            {
+                tryAdd = CashBoxes.TryAdd(newCashBox);
+            }
+            
 
             var tempCashList = CashList;
-
             CashList = new decimal[NumberOfCashBoxes];
             for (int i = 0; i < tempCashList.Length; i++)
             {
                 CashList[i] = tempCashList[i];
             }
-            Task.Run(() => CashBoxDequeue(CashBoxes[^1]));
+
+            Task.Run(() => CashBoxDequeue(newCashBox));
         }
 
         public void DeleteCashBox()
@@ -125,15 +159,50 @@ namespace Shop.BL.Model
             {
                 return;
             }
-            NumberOfCashBoxes -= 1;
-            var tempCashList = CashList;
-            var indexToRemove = CashBoxes.Max(cb => cb.Number) - 1;
-            CashBoxes.RemoveAt(indexToRemove);
-            CashList = new decimal[NumberOfCashBoxes];
-            for (int i = 0; i < CashList.Length; i++)
+            
+            Task.Run(() =>
             {
-                CashList[i] = tempCashList[i];
+                CashBox cBox = null;
+                foreach (var box in CashBoxes)
+                {
+                    cBox = box;
+                }
+                cBox.IsClosing = true;
+                while (cBox.Count() > 0)
+                {
+                    Thread.Sleep(200);
+                }
+
+
+                NumberOfCashBoxes -= 1;
+                var tempCashList = CashList;
+                CashBox[] boxesArray = new CashBox[NumberOfCashBoxes];
+                var tryTake = false;
+                for (int i = 0; i < boxesArray.Length; i++)
+                {
+                        boxesArray[i] = CashBoxes.Take();
+                }
+                CashBoxes = new BlockingCollection<CashBox>();
+                foreach (var cashBox in boxesArray)
+                {
+                        CashBoxes.Add(cashBox);
+                }
+
+                CashList = new decimal[NumberOfCashBoxes];
+                for (int i = 0; i < CashList.Length; i++)
+                {
+                    CashList[i] = tempCashList[i];
+                }
+                CashBoxDeleted?.Invoke(this, NumberOfCashBoxes);
             }
+            );
+
+        }
+
+        public List<Product> GetStoreProducts() => _contentGenerator.GetStoreProducts();
+        public void IncreaseProducts(int amount)
+        {
+            _contentGenerator.IncreaseProducts(amount);
         }
 
     }

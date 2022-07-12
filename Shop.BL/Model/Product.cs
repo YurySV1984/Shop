@@ -30,10 +30,7 @@ namespace Shop.BL.Model
         }
         public Product()
         { }
-        public override int GetHashCode()
-        {
-            return ProductId;
-        }
+        public override int GetHashCode() => ProductId;
         public override bool Equals(object? obj)
         {
             if (obj is Product product)

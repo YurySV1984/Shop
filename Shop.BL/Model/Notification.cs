@@ -10,20 +10,24 @@ namespace Shop.BL.Model
 {
     public class Notifications
     {
-        public BlockingCollection<string> CheckStrings { get; set; }
-        //public string? LastString => CheckStrings[^1];
+        private object lockObj = new object();
+        private List<string> CheckStrings { get; set; } = new List<string>();
         public ObservableCollection<string> GetCheckStrings()
         {
-            return new ObservableCollection<string>(CheckStrings);
+            lock (lockObj)
+            {
+                return new ObservableCollection<string>(CheckStrings);
+            }
         }
         public void AddCheckString(string checkString)
         {
-            CheckStrings.Add(checkString);
+            lock (lockObj)
+            {
+                CheckStrings.Add(checkString);
+            }
         }
 
         public Notifications()
-        {
-            CheckStrings = new BlockingCollection<string>();
-        }
+        { }
     }
 }

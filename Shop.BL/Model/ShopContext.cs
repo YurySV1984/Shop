@@ -4,7 +4,7 @@ namespace Shop.BL.Model
 {
     public class ShopContext : DbContext
     {
-        public ShopContext() : base("name=ShopConnectionString") { }
+        public ShopContext() : base("ShopConnectionString") { }
 
         public DbSet<Check>? Checks { get; set; }
         public DbSet<Customer>? Customers { get; set; }

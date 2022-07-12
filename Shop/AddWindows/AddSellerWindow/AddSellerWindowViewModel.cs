@@ -37,7 +37,7 @@ namespace Shop.AddWindows.AddSellerWindow
                 MessageBox.Show("Некорректные данные");
                 return;
             }
-            var seller = new Seller(SellerName);
+            var seller = new Seller(SellerName, 10);
             using (var context = new ShopContext())
             {
                 if (context?.Sellers?.Where(s => s.Name == SellerName).FirstOrDefault() == null)

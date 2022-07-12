@@ -6,35 +6,106 @@
         xmlns:local="clr-namespace:Shop"
         xmlns:vm="clr-namespace:Shop"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Window.DataContext>
-        <vm:MainWindowViewModel/>
-    </Window.DataContext>
+        Title="MainWindow" Height="600" Width="1080">
+    <Window.Resources>
+        <local:MainWindowViewModel x:Key="vm"/>
+    </Window.Resources>
+
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="140"/>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
         <Menu>
             <MenuItem Header="Справочник">
                 <MenuItem Header="Товары">
-                    <MenuItem Header="Посмотреть товары" Command="{Binding OpenProductsCommand}"/>
-                    <MenuItem Header="Добавить" Command="{Binding AddProductCommand}"/>
+                        <MenuItem Header="Посмотреть товары" Command="{Binding OpenProductsCommand, Source={ StaticResource vm}}"/>
+                        <MenuItem Header="Добавить" Command="{Binding AddProductCommand, Source={ StaticResource vm}}"/>
                 </MenuItem>
 
                 <MenuItem Header="Продавцы">
-                    <MenuItem Header="Посмотреть продавцов" Command="{Binding OpenSellersCommand}"/>
-                    <MenuItem Header="Добавить" Command="{Binding AddSellerCommand}"/>
+                        <MenuItem Header="Посмотреть продавцов" Command="{Binding OpenSellersCommand, Source={ StaticResource vm}}"/>
+                        <MenuItem Header="Добавить" Command="{Binding AddSellerCommand, Source={ StaticResource vm}}"/>
                 </MenuItem>
 
                 <MenuItem Header="Покупатели">
-                    <MenuItem Header="Посмотреть покупателей" Command="{Binding OpenCustomersCommand}"/>
-                    <MenuItem Header="Добавить" Command="{Binding AddCustomerCommand}"/>
+                    <MenuItem Header="Посмотреть покупателей" Command="{Binding OpenCustomersCommand, Source={ StaticResource vm}}"/>
+                        <MenuItem Header="Добавить" Command="{Binding AddCustomerCommand, Source={ StaticResource vm}}"/>
                 </MenuItem>
 
 
-                <MenuItem Name="Check" Header="Чек" Command="{Binding OpenChecksCommand}"/>
+                    <MenuItem Name="Check" Header="Чек" Command="{Binding OpenChecksCommand, Source={ StaticResource vm}}"/>
                 
             </MenuItem>
-            <MenuItem Name="Simulator" Header="Симулятор" Command="{Binding OpenSimulatorCommand}"/>
+                <MenuItem Name="Simulator" Header="Симулятор" Command="{Binding OpenSimulatorCommand, Source={ StaticResource vm}}"/>
 
         </Menu>
+        </StackPanel>
 
+        <DockPanel Grid.Column="0" Grid.Row="1">
+            <Label Content="Выбрать продавца:" HorizontalAlignment="Right"/>
+        </DockPanel>
+        <DockPanel Grid.Column="1" Grid.Row="1">
+            <ComboBox ItemsSource="{Binding SellersVM, Source={ StaticResource vm}}" SelectedItem="{Binding SelectedSeller, Source={ StaticResource vm}}" Margin="5"/>
+        </DockPanel>
+
+        <DockPanel Grid.Column="0" Grid.Row="2">
+            <Label Content="Выбрать покупателя:" HorizontalAlignment="Right"/>
+        </DockPanel>
+        <DockPanel Grid.Column="1" Grid.Row="2">
+            <ComboBox ItemsSource="{Binding CustomersVM, Source={ StaticResource vm}}" SelectedItem="{Binding SelectedCustomer, Source={ StaticResource vm}}" Margin="5"/>
+        </DockPanel>
+        <DockPanel Grid.Column="0" Grid.Row="3">
+            <Button Content="Создать корзину" Margin="5" Command="{Binding CreateCartCommand, Source={ StaticResource vm}}" IsEnabled="{Binding IsEnabledCreateCart, Source={ StaticResource vm}}"/>
+        </DockPanel>
+        <DockPanel Grid.Column="2" Grid.Row="3">
+            <Label Content="Сумма чека:"/>
+            <Label Content="{Binding CartSum, Source={ StaticResource vm}}"/>
+            <Button Content="Создать чек" Margin="5" Command="{Binding CreateCheckCommand, Source={ StaticResource vm}}" IsEnabled="{Binding IsEnabled, Source={ StaticResource vm}}"/>
+        </DockPanel>
+        <DockPanel Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2">
+            <DataGrid IsReadOnly="True" ItemsSource="{Binding Products, Source={ StaticResource vm}}" AutoGenerateColumns="False" IsEnabled="{Binding IsEnabled, Source={ StaticResource vm}}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Наим" Binding="{Binding Name}"/>
+                    <DataGridTextColumn Header="Цена" Binding="{Binding Price}"/>
+                    <DataGridTextColumn Header="Кол-во" Binding="{Binding Count}"/>
+                    <DataGridTextColumn Header="Ед.изм" Binding="{Binding Unit}"/>
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="Добавить в корзину"  Command="{Binding AddProductToCartCommand, Source={StaticResource vm}}" CommandParameter="{Binding}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+                
+            </DataGrid>
+        </DockPanel>
+        <DockPanel Grid.Column="2" Grid.Row="4">
+            <DataGrid ItemsSource="{Binding CartVMs, Source={StaticResource vm}}" AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Товар" Binding="{Binding ProductName}"/>
+                    <DataGridTextColumn Header="Количество" Binding="{Binding ProductCount}"/>
+                    <DataGridTextColumn Header="Цена" Binding="{Binding ProductPrice}"/>
+                    <DataGridTextColumn Header="Сумма"  Binding="{Binding ProductSumPrice}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+        </DockPanel>
+        
+        
     </Grid>
 </Window>
