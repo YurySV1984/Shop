@@ -19,7 +19,7 @@ namespace Shop.BL.Model
         public List<Product> ProductsInCheck { get; set; } = new List<Product>();
         public override string ToString()
         {
-            return $"Чек {CheckId} от {Created:dd.MM hh:mm:ss}";
+            return $"Чек {CheckId} от {Created:dd.MM hh:mm:ss} на сумму {CheckSum} руб, продал {Seller.Name}, купил {Customer.Name}";
         }
         public Check() { }
         public Check(DateTime created)

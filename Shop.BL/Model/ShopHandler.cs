@@ -94,5 +94,39 @@ namespace Shop.BL.Model
 
             }
         }
+
+        public object GetSellerReport(Seller seller)
+        {
+            var id = seller.SellerId;
+            //список чеков продавца
+            var sellerCheckList = Context.Checks.Where(check => check.SellerId == id).ToArray();
+            //сумма чеков продавца
+            var sellerCheckSum = sellerCheckList.Select(check => check.CheckSum).Sum();
+            //список CheckId продавца
+            var sellerCheckIdList = sellerCheckList.Select(check => check.CheckId).ToArray();
+
+
+            Sell[] sells = new Sell[sellerCheckList.Length]; 
+            var i = 0;
+            var sellerSells = Context.Sells.Where(sell => sellerCheckIdList.Contains(sell.CheckId)).ToArray();
+            foreach (var check in sellerCheckList)
+            {
+                foreach (var sell in sellerSells)
+                {
+                    if (check.Sells.Contains(sell))
+                    {
+                        check.ProductsInCheck.Add(sell.Product);
+                    }
+                }
+            }
+            Context.Dispose();
+            Context = new ShopContext();
+            
+
+            
+            return sellerCheckList;
+            
+            
+        }
     }
 }

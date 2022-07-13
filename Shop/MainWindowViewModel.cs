@@ -80,6 +80,13 @@ namespace Shop
             set { Set(ref _cartSum, value); }
         }
 
+        private object _sellerReport;
+        public object SellerReport
+        {
+            get { return _sellerReport; }
+            set { Set(ref _sellerReport, value); }
+        }
+
 
         public MainWindowViewModel()
         {
@@ -97,6 +104,8 @@ namespace Shop
             AddProductToCartCommand = new LambdaCommand(OnAddProductToCartExecuted, CanAddProductToCart);
             CreateCartCommand = new LambdaCommand(OnCreateCartExecuted,CanCreateCart);
             CreateCheckCommand = new LambdaCommand(OnCreateCheckExecuted, CanCreateCheck);
+            GetSellerReportCommand = new LambdaCommand(OnGetSellerReportExecuted, CanGetSellerReport);
+
         }
 
         #region Products Click
@@ -286,7 +295,17 @@ namespace Shop
         }
         #endregion
 
-
+        #region Seller report 1 click
+        /// <summary>
+        /// Команда "Отчет по продавцу".
+        /// </summary>
+        public ICommand GetSellerReportCommand { get; }
+        private bool CanGetSellerReport(object p) => true;
+        private void OnGetSellerReportExecuted(object p)
+        {
+            SellerReport = ShopHandler.GetSellerReport(SelectedSeller);
+        }
+        #endregion
 
 
 
