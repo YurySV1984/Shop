@@ -88,9 +88,8 @@ namespace Shop.BL.Model
                         check.CheckSum += product.Price;
                     }
                 }
-
-                Context.Checks.Add(check);
                 Context.SaveChanges();
+                
 
             }
         }
@@ -101,32 +100,45 @@ namespace Shop.BL.Model
             //список чеков продавца
             var sellerCheckList = Context.Checks.Where(check => check.SellerId == id).ToArray();
             //сумма чеков продавца
-            var sellerCheckSum = sellerCheckList.Select(check => check.CheckSum).Sum();
-            //список CheckId продавца
-            var sellerCheckIdList = sellerCheckList.Select(check => check.CheckId).ToArray();
-
-
-            Sell[] sells = new Sell[sellerCheckList.Length]; 
-            var i = 0;
-            var sellerSells = Context.Sells.Where(sell => sellerCheckIdList.Contains(sell.CheckId)).ToArray();
-            foreach (var check in sellerCheckList)
+            //var sellerCheckSum = sellerCheckList.Select(check => check.CheckSum).Sum();
+            return sellerCheckList;    
+        }
+        public ObservableCollection<string> GetCheckReport(Check check)
+        {
+            var list = new List<Check> { check };
+            var checkSellsProducts = list.Join(
+                Context.Sells,
+                check => check.CheckId,
+                sell => sell.CheckId,
+                (check, sell) => new {SellProductId = sell.ProductId, CheckId = check.CheckId }
+                ).Join(
+                Context.Products,
+                sell => sell.SellProductId,
+                product => product.ProductId,
+                (sell, product) => new string(product.Name)
+                )
+                .ToList();
+            var counter = 1;
+            for (int i = 0; i < checkSellsProducts.Count; i++)
             {
-                foreach (var sell in sellerSells)
+                
+                if (i != checkSellsProducts.Count - 1 && checkSellsProducts[i] == checkSellsProducts[i + 1])
                 {
-                    if (check.Sells.Contains(sell))
-                    {
-                        check.ProductsInCheck.Add(sell.Product);
-                    }
+                    counter++;                    
+                    checkSellsProducts.RemoveAt(i + 1);
+                    i--;
+                    
+                }
+                else
+                {
+                    checkSellsProducts[i] += " " + counter + " ед.";
+                    counter = 1;
                 }
             }
-            Context.Dispose();
-            Context = new ShopContext();
-            
 
-            
-            return sellerCheckList;
-            
-            
+
+
+            return new ObservableCollection<string>(checkSellsProducts);
         }
     }
 }

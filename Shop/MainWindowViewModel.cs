@@ -86,6 +86,12 @@ namespace Shop
             get { return _sellerReport; }
             set { Set(ref _sellerReport, value); }
         }
+        private ObservableCollection<string> _checkReport;
+        public ObservableCollection<string> CheckReport
+        {
+            get { return _checkReport; }
+            set { Set(ref _checkReport, value); }
+        }
 
 
         public MainWindowViewModel()
@@ -105,7 +111,7 @@ namespace Shop
             CreateCartCommand = new LambdaCommand(OnCreateCartExecuted,CanCreateCart);
             CreateCheckCommand = new LambdaCommand(OnCreateCheckExecuted, CanCreateCheck);
             GetSellerReportCommand = new LambdaCommand(OnGetSellerReportExecuted, CanGetSellerReport);
-
+            GetCheckReportCommand = new LambdaCommand(OnGetGetCheckReportExecuted, CanGetCheckReport);
         }
 
         #region Products Click
@@ -295,7 +301,7 @@ namespace Shop
         }
         #endregion
 
-        #region Seller report 1 click
+        #region Seller report click
         /// <summary>
         /// Команда "Отчет по продавцу".
         /// </summary>
@@ -304,10 +310,24 @@ namespace Shop
         private void OnGetSellerReportExecuted(object p)
         {
             SellerReport = ShopHandler.GetSellerReport(SelectedSeller);
+            CheckReport = null;
         }
         #endregion
 
-
+        #region Check report click
+        /// <summary>
+        /// Команда "Отчет по чеку".
+        /// </summary>
+        public ICommand GetCheckReportCommand { get; }
+        private bool CanGetCheckReport(object p) => true;
+        private void OnGetGetCheckReportExecuted(object p)
+        {
+            if (p is Check check)
+            {
+                CheckReport = ShopHandler.GetCheckReport(check);
+            }
+        }
+        #endregion
 
 
 

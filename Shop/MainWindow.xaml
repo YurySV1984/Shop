@@ -64,6 +64,11 @@
         <DockPanel Grid.Column="2" Grid.Row="1">
             <Button Content="Отчет по выбранному продавцу" Command="{Binding GetSellerReportCommand, Source={ StaticResource vm}}" Margin="5"/>
         </DockPanel>
+        <DockPanel Grid.Column="3" Grid.Row="1" Grid.RowSpan="3">
+            <ListView ItemsSource="{Binding CheckReport, Source={StaticResource vm}}">
+                
+            </ListView>
+        </DockPanel>
 
         <DockPanel Grid.Column="0" Grid.Row="2">
             <Label Content="Выбрать покупателя:" HorizontalAlignment="Right"/>
@@ -98,7 +103,7 @@
             </DataGrid>
         </DockPanel>
         <DockPanel Grid.Column="2" Grid.Row="4">
-            <DataGrid ItemsSource="{Binding CartVMs, Source={StaticResource vm}}" AutoGenerateColumns="False">
+            <DataGrid ItemsSource="{Binding CartVMs, Source={StaticResource vm}}" AutoGenerateColumns="False" IsReadOnly="True">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Товар" Binding="{Binding ProductName}"/>
                     <DataGridTextColumn Header="Количество" Binding="{Binding ProductCount}"/>
@@ -108,26 +113,21 @@
             </DataGrid>
         </DockPanel>
         <DockPanel Grid.Column="3" Grid.Row="4">
-            <DataGrid ItemsSource="{Binding SellerReport, Source={StaticResource vm}}" AutoGenerateColumns="False">
+            <DataGrid ItemsSource="{Binding SellerReport, Source={StaticResource vm}}" AutoGenerateColumns="False" IsReadOnly="True">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Чек" Binding="{Binding CheckId}"/>
                     <DataGridTextColumn Header="Пок" Binding="{Binding Customer}"/>
                     <DataGridTextColumn Header="Прод" Binding="{Binding Seller}"/>
                     <DataGridTextColumn Header="Создан" Binding="{Binding Created}"/>
                     <DataGridTextColumn Header="Сумма" Binding="{Binding CheckSum}"/>
-                    <DataGridTemplateColumn Header="Товары">
+                    <DataGridTemplateColumn Header="">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <DataGrid ItemsSource="{Binding ProductsInCheck}" AutoGenerateColumns="False">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="Товар" Binding="{Binding Name}"/>
-                                        <DataGridTextColumn Header="Цена" Binding="{Binding Price}"/>
-                                        <DataGridTextColumn Header="Ед.изм" Binding="{Binding Unit}"/>
-                                    </DataGrid.Columns>
-                                </DataGrid>
+                                <Button Content="Отчет по чеку" Command="{Binding GetCheckReportCommand, Source={StaticResource vm}}" CommandParameter="{Binding}"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
+                    
                 </DataGrid.Columns>
             </DataGrid>
         </DockPanel>
