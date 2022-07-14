@@ -105,7 +105,6 @@ namespace Shop
             OpenCustomersCommand = new LambdaCommand(OnOpenCustomersExecuted, CanOpenCustomers);
             AddCustomerCommand = new LambdaCommand(OnAddCustomerExecuted, CanAddCustomer);
             OpenChecksCommand = new LambdaCommand(OnOpenChecksExecuted, CanOpenChecks);
-            AddCheckCommand = new LambdaCommand(OnAddCheckExecuted, CanAddCheck);
             OpenSimulatorCommand = new LambdaCommand(OnOpenSimulatorExecuted, CanOpenSimulator);
             AddProductToCartCommand = new LambdaCommand(OnAddProductToCartExecuted, CanAddProductToCart);
             CreateCartCommand = new LambdaCommand(OnCreateCartExecuted,CanCreateCart);
@@ -203,24 +202,12 @@ namespace Shop
         private bool CanOpenChecks(object p) => true;
         private void OnOpenChecksExecuted(object p)
         {
-            var catalogCustomers = new Catalog();
-            catalogCustomers.ShowDialog();
-            catalogCustomers.Owner = App.Current.MainWindow;
+            var catalogChecks = new CatalogWindows.CatalogChecksWindow.CatalogChecksWindow();
+            catalogChecks.ShowDialog();
+            catalogChecks.Owner = App.Current.MainWindow;
         }
         #endregion
-        #region Add check click
-        /// <summary>
-        /// Команда "Добавить чек".
-        /// </summary>
-        public ICommand AddCheckCommand { get; }
-        private bool CanAddCheck(object p) => true;
-        private void OnAddCheckExecuted(object p)
-        {
-            var addCheckWindow = new AddCheck();
-            addCheckWindow.ShowDialog();
-            addCheckWindow.Owner = App.Current.MainWindow;
-        }
-        #endregion
+        
 
         #region Simulator click
         /// <summary>

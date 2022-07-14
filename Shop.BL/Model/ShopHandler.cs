@@ -96,6 +96,10 @@ namespace Shop.BL.Model
 
         public object GetSellerReport(Seller seller)
         {
+            if (seller == null)
+            {
+                return null;    
+            }
             var id = seller.SellerId;
             //список чеков продавца
             var sellerCheckList = Context.Checks.Where(check => check.SellerId == id).ToArray();
@@ -135,8 +139,6 @@ namespace Shop.BL.Model
                     counter = 1;
                 }
             }
-
-
 
             return new ObservableCollection<string>(checkSellsProducts);
         }
